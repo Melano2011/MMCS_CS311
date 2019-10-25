@@ -66,7 +66,7 @@ namespace TestGeneratedParser
         [Test]
         public void TestExr()
         {
-            Assert.True(Parse(@"begin a:=x-z*3/(c+3-(ddz)+2) end"));
+            Assert.True(Parse("begin \na:=x-z*3/(c+3-(ddz)+2) end"));
             
             Assert.True(Parse(@"begin for i:=2+2*(c-3) to 5+6*2 do begin a:=x-z*3/(c+3-(ddz)+2); if (2-2) then c:=a-2 else write(2+2) end end"));
         }

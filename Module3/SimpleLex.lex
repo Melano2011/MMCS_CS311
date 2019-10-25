@@ -7,6 +7,7 @@ AlphaDigit {Alpha}|{Digit}
 INTNUM  {Digit}+
 REALNUM {INTNUM}\.{INTNUM}
 ID {Alpha}{AlphaDigit}* 
+COMMENT	\/\/[^\r\n]*
 
 // Здесь можно делать описания типов, переменных и методов - они попадают в класс Scanner
 %{
@@ -18,6 +19,10 @@ ID {Alpha}{AlphaDigit}*
 {INTNUM} { 
   LexValueInt = int.Parse(yytext);
   return (int)Tok.INUM;
+}
+
+{COMMENT} {
+  return (int)Tok.COMMENT;
 }
 
 {REALNUM} { 

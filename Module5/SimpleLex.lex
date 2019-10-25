@@ -28,6 +28,12 @@ ID {Alpha}{AlphaDigit}*
 
 ":=" { return (int)Tokens.ASSIGN; }
 ";"  { return (int)Tokens.SEMICOLON; }
+"-"  { return (int)Tokens.MINUS; }
+"+"  { return (int)Tokens.PLUS; }
+"*"  { return (int)Tokens.MULT; }
+"/"  { return (int)Tokens.DIVIDE; }
+"("  { return (int)Tokens.OPENROUND; }
+")"  { return (int)Tokens.CLOSEROUND; }
 
 [^ \r\n] {
 	LexError();
@@ -43,13 +49,13 @@ ID {Alpha}{AlphaDigit}*
 public override void yyerror(string format, params object[] args) // обработка синтаксических ошибок
 {
   var ww = args.Skip(1).Cast<string>().ToArray();
-  string errorMsg = string.Format("({0},{1}): Встречено {2}, а ожидалось {3}", yyline, yycol, args[0], string.Join(" или ", ww));
+  string errorMsg = string.Format("({0},{1}): Got '{2}', expected '{3}'", yyline, yycol, args[0], string.Join(" или ", ww));
   throw new SyntaxException(errorMsg);
 }
 
 public void LexError()
 {
-	string errorMsg = string.Format("({0},{1}): Неизвестный символ {2}", yyline, yycol, yytext);
+	string errorMsg = string.Format("({0},{1}): Unknown symbol '{2}'", yyline, yycol, yytext);
     throw new LexException(errorMsg);
 }
 
@@ -63,6 +69,9 @@ class ScannerHelper
     keywords.Add("begin",(int)Tokens.BEGIN);
     keywords.Add("end",(int)Tokens.END);
     keywords.Add("cycle",(int)Tokens.CYCLE);
+    keywords.Add("if",(int)Tokens.IF);
+    keywords.Add("else",(int)Tokens.ELSE);
+    keywords.Add("then",(int)Tokens.THEN);
   }
   public static int GetIDToken(string s)
   {

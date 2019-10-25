@@ -32,6 +32,11 @@ namespace SimpleLangParser
             if (l.LexKind == Tok.ID || l.LexKind == Tok.INUM)
             {
                 l.NextLexem();
+                if (l.LexKind == Tok.PLUS || l.LexKind == Tok.MINUS)
+                {
+                    l.NextLexem();
+                    Expr();
+                }
             }
             else
             {
@@ -76,6 +81,11 @@ namespace SimpleLangParser
                         Cycle(); 
                         break;
                     }
+                case Tok.FOR:
+                    {
+                        For();
+                        break;
+                    }
                 case Tok.ID:
                     {
                         Assign();
@@ -87,6 +97,26 @@ namespace SimpleLangParser
                         break;
                     }
             }
+        }
+
+        private void For()
+        {
+            l.NextLexem();    // пропуск begin
+            Assign();
+            if (l.LexKind != Tok.TO)
+                SyntaxError("end expected");
+
+            l.NextLexem();
+            if (l.LexKind != Tok.INUM)
+                SyntaxError("end expected");
+            l.NextLexem();
+            if (l.LexKind != Tok.DO)
+                SyntaxError("end expected");
+            l.NextLexem();
+            if (l.LexKind == Tok.BEGIN)
+                Block();
+            else
+                Statement();
         }
 
         public void Block() 
@@ -101,7 +131,6 @@ namespace SimpleLangParser
             {
                 SyntaxError("end expected");
             }
-
         }
 
         public void Cycle() 

@@ -7,7 +7,7 @@
 
 %namespace SimpleParser
 
-%token BEGIN END CYCLE INUM RNUM ID ASSIGN SEMICOLON  
+%token BEGIN END CYCLE INUM RNUM ID ASSIGN SEMICOLON MINUS PLUS MULT DIVIDE OPENROUND CLOSEROUND IF ELSE THEN
 
 %%
 
@@ -21,6 +21,7 @@ stlist	: statement
 statement: assign
 		| block  
 		| cycle  
+        | if
 		;
 
 ident 	: ID 
@@ -29,9 +30,29 @@ ident 	: ID
 assign 	: ident ASSIGN expr 
 		;
 
-expr	: ident  
-		| INUM 
+expr	: e1
 		;
+
+e1      : e2 
+        | e1 PLUS e2
+        | e1 MINUS e2
+        ;
+        
+e2      : e3 
+        | e2 MULT e3
+        | e2 DIVIDE e3
+        ;
+        
+e3      : ident 
+        | INUM
+        | RNUM
+        | OPENROUND expr CLOSEROUND
+        ;
+        
+if		: IF expr THEN statement
+		| IF expr THEN statement ELSE statement
+		;
+
 
 block	: BEGIN stlist END 
 		;

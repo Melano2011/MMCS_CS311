@@ -1,11 +1,11 @@
 
 // ==========================================================================
-//  GPPG error listing for yacc source file <SimpleYacc.y>
+//  GPPG error listing for yacc source file <SimpleYacc.y - 10/18/2019 5:48:08 PM>
 // ==========================================================================
-//  Version:  1.3.6
-//  Machine:  SSM
-//  DateTime: 17.08.2014 10:25:15
-//  UserName: Станислав
+//  Version:  1.5.0
+//  Machine:  WINDOWS-EUO6RK1
+//  DateTime: 10/18/2019 5:48:24 PM
+//  UserName: Alexander
 // ==========================================================================
 
 
@@ -16,19 +16,17 @@
 
 %output = SimpleYacc.cs
 
-%using System.IO;
-
 %namespace SimpleParser
 
-%token BEGIN END CYCLE INUM RNUM ID ASSIGN SEMICOLON  
+%token BEGIN END CYCLE INUM RNUM ID ASSIGN SEMICOLON MINUS PLUS MULT DIVIDE OPENROUND CLOSEROUND IF
 
 %%
-// Error: NonTerminal symbol "st" has no productions
-// Warning: Terminating st fixes the following size-2 NonTerminal set
-   // {cycle, st}
-// Error: There are 2 non-terminating NonTerminal Symbols
-   //  {cycle, st}
-// ------------------------------------------------------------------
+// Error: NonTerminal symbol "ELSE" has no productions
+// Warning: Terminating ELSE fixes the following size-1 NonTerminal set
+   // {ELSE}
+// Error: There are 1 non-terminating NonTerminal Symbols
+   //  {ELSE}
+// --------------------------------------------------------------------
 
 progr   : block
 		;
@@ -40,6 +38,7 @@ stlist	: statement
 statement: assign
 		| block  
 		| cycle  
+        | if
 		;
 
 ident 	: ID 
@@ -48,17 +47,36 @@ ident 	: ID
 assign 	: ident ASSIGN expr 
 		;
 
-expr	: ident  
-		| INUM 
+expr	: e1
 		;
+
+e1      : e2 
+        | e1 PLUS e2
+        | e1 MINUS e2
+        ;
+        
+e2      : e3 
+        | e2 MULT e3
+        | e2 DIVIDE e3
+        ;
+        
+e3      : ident 
+        | INUM
+        | RNUM
+        | OPENROUND expr CLOSEROUND
+        ;
+        
+if		: IF expr statement
+		| IF expr statement ELSE statement
+		;
+
 
 block	: BEGIN stlist END 
 		;
 
-cycle	: CYCLE expr st 
+cycle	: CYCLE expr statement 
 		;
 	
 %%
-
 // ==========================================================================
 

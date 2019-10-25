@@ -100,6 +100,9 @@ namespace SimpleLexer
             keywordsMap["begin"] = Tok.BEGIN;
             keywordsMap["end"] = Tok.END;
             keywordsMap["cycle"] = Tok.CYCLE;
+            keywordsMap["for"] = Tok.FOR;
+            keywordsMap["do"] = Tok.DO;
+            keywordsMap["to"] = Tok.TO;
         }
 
         public string FinishCurrentLine()
@@ -172,6 +175,62 @@ namespace SimpleLexer
                 }
                 NextCh();
                 LexKind = Tok.ASSIGN;
+            }
+            else if (currentCh == '<')
+            {
+                NextCh();
+                
+                if (currentCh == '=')
+                {
+                    NextCh();
+                    LexKind = Tok.LEQ;
+                }
+                else if (currentCh == '>')
+                {
+                    NextCh();
+                    LexKind = Tok.NEQ;
+                }
+                else
+                    LexKind = Tok.LT;
+            }
+            else if (currentCh == '>')
+            {
+                NextCh();
+
+                if (currentCh == '=')
+                {
+                    NextCh();
+                    LexKind = Tok.GEQ;
+                }
+                else
+                    LexKind = Tok.GT;
+            }
+            else if (currentCh == '+')
+            {
+                NextCh();
+                if (currentCh == '=')
+                {
+                    NextCh();
+                    LexKind = Tok.PLUSASSIGN;
+                }
+                else
+                    LexKind = Tok.PLUS;
+            }
+            else if (currentCh == '-')
+            {
+                NextCh();
+                if (currentCh == '=')
+                {
+                    NextCh();
+                    LexKind = Tok.MINUSASSIGN;
+                }
+                else
+                    LexKind = Tok.MINUS;
+            }
+            else if (currentCh == '=')
+            {
+                NextCh();
+                LexKind = Tok.EQ;
             }
             else if (char.IsLetter(currentCh))
             {

@@ -46,6 +46,10 @@ end";
             {
                 Console.WriteLine("parser error: " + le.Message);
             }
+            finally
+            {
+                Console.ReadKey();
+            }
         }
     }
 }
