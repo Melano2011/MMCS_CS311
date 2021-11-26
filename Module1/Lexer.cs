@@ -1,4 +1,4 @@
-using System;
+п»їusing System;
 using System.Text;
 using System.Collections.Generic;
 using System.Globalization;
@@ -20,8 +20,8 @@ namespace Lexer
     {
 
         protected int position;
-        protected char currentCh; // очередной считанный символ
-        protected int currentCharValue; // целое значение очередного считанного символа
+        protected char currentCh; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+        protected int currentCharValue; // пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
         protected System.IO.StringReader inputReader;
         protected string inputString;
 
@@ -43,7 +43,7 @@ namespace Lexer
         protected void NextCh()
         {
             this.currentCharValue = this.inputReader.Read();
-            this.currentCh = (char) currentCharValue;
+            this.currentCh = (char)currentCharValue;
             this.position += 1;
         }
 
@@ -70,11 +70,13 @@ namespace Lexer
             NextCh();
             if (currentCh == '+' || currentCh == '-')
             {
+                intString.Append(currentCh);
                 NextCh();
             }
-        
+
             if (char.IsDigit(currentCh))
             {
+                intString.Append(currentCh);
                 NextCh();
             }
             else
@@ -84,6 +86,7 @@ namespace Lexer
 
             while (char.IsDigit(currentCh))
             {
+                intString.Append(currentCh);
                 NextCh();
             }
 
@@ -93,31 +96,52 @@ namespace Lexer
                 Error();
             }
 
+            parseResult = int.Parse(intString.ToString());
             return true;
-
         }
     }
-    
+
     public class IdentLexer : Lexer
     {
         private string parseResult;
         protected StringBuilder builder;
-    
+
         public string ParseResult
         {
             get { return parseResult; }
         }
-    
+
         public IdentLexer(string input) : base(input)
         {
             builder = new StringBuilder();
         }
 
         public override bool Parse()
-        { 
-            throw new NotImplementedException();
+        {
+            NextCh();
+            if (char.IsLetter(currentCh))
+            {
+                builder.Append(currentCh);
+                NextCh();
+            }
+            else
+            {
+                Error();
+            }
+            while (char.IsLetterOrDigit(currentCh) || currentCh == '_')
+            {
+                builder.Append(currentCh);
+                NextCh();
+            }
+            if (currentCharValue != -1)
+            {
+                Error();
+            }
+
+            parseResult = builder.ToString();
+            return true;
         }
-       
+
     }
 
     public class IntNoZeroLexer : IntLexer
@@ -129,7 +153,36 @@ namespace Lexer
 
         public override bool Parse()
         {
-            throw new NotImplementedException();
+            NextCh();
+            if (currentCh == '+' || currentCh == '-')
+            {
+                intString.Append(currentCh);
+                NextCh();
+            }
+            if (char.IsDigit(currentCh) && currentCh != '0')
+            {
+                intString.Append(currentCh);
+                NextCh();
+            }
+            else
+            {
+                Error();
+            }
+
+            while (char.IsDigit(currentCh))
+            {
+                intString.Append(currentCh);
+                NextCh();
+            }
+
+
+            if (currentCharValue != -1)
+            {
+                Error();
+            }
+
+            parseResult = int.Parse(intString.ToString());
+            return true;
         }
     }
 
@@ -151,9 +204,50 @@ namespace Lexer
 
         public override bool Parse()
         {
-            throw new NotImplementedException();
+            NextCh();
+            if (char.IsLetter(currentCh))
+            {
+                builder.Append(currentCh);
+                NextCh();
+            }
+            else
+            {
+                Error();
+            }
+            while (true)
+            {
+                if (currentCharValue == -1)
+                {
+                    break;
+                }
+                if (char.IsDigit(currentCh))
+                {
+                    builder.Append(currentCh);
+                    NextCh();
+                }
+                else
+                {
+                    Error();
+                }
+
+                if (currentCharValue == -1)
+                {
+                    break;
+                }
+                if (char.IsLetter(currentCh))
+                {
+                    builder.Append(currentCh);
+                    NextCh();
+                }
+                else
+                {
+                    Error();
+                }
+            }
+            parseResult = builder.ToString();
+            return true;
         }
-       
+
     }
 
     public class LetterListLexer : Lexer
@@ -173,12 +267,52 @@ namespace Lexer
 
         public override bool Parse()
         {
-            throw new NotImplementedException();
+            NextCh();
+            if (char.IsLetter(currentCh))
+            {
+                parseResult.Add(currentCh);
+                NextCh();
+            }
+            else
+            {
+                Error();
+            }
+            while (true)
+            {
+                if (currentCharValue == -1)
+                {
+                    break;
+                }
+                if (currentCh == ',' || currentCh == ';')
+                {
+                    NextCh();
+                }
+                else
+                {
+                    Error();
+                }
+
+                if (currentCharValue == -1)
+                {
+                    Error();
+                }
+                if (char.IsLetter(currentCh))
+                {
+                    parseResult.Add(currentCh);
+                    NextCh();
+                }
+                else
+                {
+                    Error();
+                }
+            }
+            return true;
         }
     }
 
     public class DigitListLexer : Lexer
     {
+        private bool check;
         protected List<int> parseResult;
 
         public List<int> ParseResult
@@ -194,7 +328,40 @@ namespace Lexer
 
         public override bool Parse()
         {
-            throw new NotImplementedException();
+            NextCh();
+            if (char.IsDigit(currentCh))
+            {
+                check = true;
+                parseResult.Add(currentCh - (int)'0');
+                NextCh();
+            }
+            else
+            {
+                Error();
+            }
+            while (true)
+            {
+                if (currentCharValue == -1)
+                {
+                    break;
+                }
+                while (char.IsWhiteSpace(currentCh))
+                {
+                    check = false;
+                    NextCh();
+                }
+                if (char.IsDigit(currentCh) && !check)
+                {
+                    parseResult.Add(currentCh - (int)'0');
+                    NextCh();
+                    check = true;
+                }
+                else
+                {
+                    Error();
+                }
+            }
+            return true;
         }
     }
 
@@ -207,18 +374,70 @@ namespace Lexer
         {
             get { return parseResult; }
         }
-        
+
         public LetterDigitGroupLexer(string input)
             : base(input)
         {
             builder = new StringBuilder();
         }
+        private int letterCount = 0;
+        private int digitCount = 0;
+
 
         public override bool Parse()
         {
-            throw new NotImplementedException();
+            NextCh();
+            if (char.IsLetter(currentCh))
+            {
+                builder.Append(currentCh);
+                letterCount = 1;
+                NextCh();
+            }
+            else
+            {
+                Error();
+            }
+            while (currentCharValue != -1)
+            {
+                if (!char.IsLetterOrDigit(currentCh))
+                {
+                    Error();
+                }
+                while (char.IsLetter(currentCh))
+                {
+                    letterCount += 1;
+                    builder.Append(currentCh);
+                    NextCh();
+                }
+                if (letterCount > 2)
+                {
+                    Error();
+                }
+                else
+                {
+                    letterCount = 0;
+                }
+
+                while (char.IsDigit(currentCh))
+                {
+                    digitCount += 1;
+                    builder.Append(currentCh);
+                    NextCh();
+                }
+                if (digitCount > 2)
+                {
+                    Error();
+                }
+                else
+                {
+                    digitCount = 0;
+                }
+
+            }
+            parseResult = builder.ToString();
+            return true;
         }
-       
+
     }
 
     public class DoubleLexer : Lexer
@@ -240,9 +459,53 @@ namespace Lexer
 
         public override bool Parse()
         {
-            throw new NotImplementedException();
+            NextCh();
+            if (char.IsDigit(currentCh))
+            {
+                builder.Append(currentCh);
+                NextCh();
+            }
+            else
+            {
+                Error();
+            }
+            while (char.IsDigit(currentCh))
+            {
+                builder.Append(currentCh);
+                NextCh();
+            }
+            if (currentCh == '.')
+            {
+                builder.Append(currentCh);
+                NextCh();
+                if (char.IsDigit(currentCh))
+                {
+                    builder.Append(currentCh);
+                    NextCh();
+                }
+                else
+                {
+                    Error();
+                }
+                while (char.IsDigit(currentCh))
+                {
+                    builder.Append(currentCh);
+                    NextCh();
+                }
+            }
+
+            if (currentCharValue == -1)
+            {
+                parseResult = double.Parse(builder.ToString());
+                return true;
+            }
+            else
+            {
+                Error();
+            }
+            return false;
         }
-       
+
     }
 
     public class StringLexer : Lexer
@@ -264,7 +527,40 @@ namespace Lexer
 
         public override bool Parse()
         {
-            throw new NotImplementedException();
+            NextCh();
+            if (currentCh == '\'')
+            {
+                builder.Append(currentCh);
+                NextCh();
+            }
+            else
+            {
+                Error();
+            }
+            while (currentCh != '\'' && currentCharValue != -1)
+            {
+                builder.Append(currentCh);
+                NextCh();
+            }
+            if (currentCh == '\'')
+            {
+                builder.Append(currentCh);
+                NextCh();
+            }
+            else
+            {
+                Error();
+            }
+            if (currentCharValue == -1)
+            {
+                parseResult = builder.ToString();
+                return true;
+            }
+            else
+            {
+                Error();
+                return false;
+            }
         }
     }
 
@@ -287,7 +583,54 @@ namespace Lexer
 
         public override bool Parse()
         {
-            throw new NotImplementedException();
+            NextCh();
+            if (currentCh == '/')
+            {
+                builder.Append(currentCh);
+                NextCh();
+                if (currentCh == '*')
+                {
+                    builder.Append(currentCh);
+                    NextCh();
+                }
+                else
+                {
+                    Error();
+                }
+            }
+            else
+            {
+                Error();
+            }
+            while (currentCharValue != -1)
+            {
+                if (currentCh == '*')
+                {
+                    builder.Append(currentCh);
+                    NextCh();
+                    if (currentCh == '/')
+                    {
+                        builder.Append(currentCh);
+                        NextCh();
+                        if (currentCharValue == -1)
+                        {
+                            parseResult = builder.ToString();
+                            return true;
+                        }
+                        else
+                        {
+                            Error();
+                        }
+                    }
+                }
+                else
+                {
+                    builder.Append(currentCh);
+                    NextCh();
+                }
+            }
+            Error();
+            return false;
         }
     }
 
@@ -311,7 +654,37 @@ namespace Lexer
 
         public override bool Parse()
         {
-            throw new NotImplementedException();
+            NextCh();
+            while (currentCharValue != -1)
+            {
+                if (char.IsLetter(currentCh))
+                {
+                    builder.Append(currentCh);
+                    NextCh();
+                }
+                else
+                {
+                    Error();
+                }
+                while (char.IsLetterOrDigit(currentCh) || currentCh == '_')
+                {
+                    builder.Append(currentCh);
+                    NextCh();
+                }
+                if (currentCh == '.')
+                {
+                    parseResult.Add(builder.ToString());
+                    builder.Clear();
+                    NextCh();
+                    if (currentCharValue == -1)
+                    {
+                        Error();
+                    }
+                }
+
+
+            }
+            return true;
         }
     }
 
